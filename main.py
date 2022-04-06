@@ -1,8 +1,8 @@
 import Grid
 
 size = 5
-n_mines = 4
-seed = 11
+n_mines = 6
+seed = None
 
 
 def get_input():

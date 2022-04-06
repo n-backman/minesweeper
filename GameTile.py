@@ -1,13 +1,11 @@
-"""
-Granular unit to maintain state of the game board.
-Each tile may rest in one of three states, HIDDEN being default.
-
-:param x  Denotes the x coordinate of the tile
-:param y  Denotes the y coordinate of the tile
-"""
-
-
 class GameTile:
+    """
+        Granular unit to maintain state of the game board.
+        Each tile may rest in one of three states, HIDDEN being default.
+
+        :param x  Denotes the x coordinate of the tile
+        :param y  Denotes the y coordinate of the tile
+    """
     # constants for tracking tile state
     HIDDEN = 0
     REVEALED = 1
@@ -22,23 +20,23 @@ class GameTile:
         self.y = y_pos
         self.__state = self.HIDDEN  # track if the tile has been clicked
 
-    '''
-    Set a mine on this GameTile
-    
-    :return True on success
-    '''
     def set_mine(self) -> bool:
+        """
+           Set a mine on this GameTile
+
+           :return True on success
+        """
         if not self.__contains_mine:
             self.__contains_mine = True
             self.__danger_level = '!'
             return True
         return False
 
-    '''
-    Set threat level of surrounding Tiles
-    :returns False if the tile is not dangerous
-    '''
     def set_danger(self, danger: int):
+        """
+            Set threat level of surrounding Tiles
+            :returns False if the tile is not dangerous
+        """
         if not self.__contains_mine:
             self.__danger_level = danger
             # auto-reveal blank tiles
@@ -47,56 +45,56 @@ class GameTile:
                 return False
         return True
 
-    '''
-    Obtain the coordinates of this GameTile
-    
-    :return coordinate Tuple (x, y)
-    '''
     def get_coords(self):
+        """
+            Obtain the coordinates of this GameTile
+
+            :return coordinate Tuple (x, y)
+        """
         return self.x, self.y
 
-    '''
-    Get the state of this GameTile
-    '''
     def get_state(self):
+        """
+            Get the state of this GameTile
+        """
         return self.__state
 
-    '''
-    Check for presence of a mine on this tile
-    
-    :return True if this GameTile has a mine, False if not
-    '''
     def has_mine(self):
+        """
+           Check for presence of a mine on this tile
+
+           :return True if this GameTile has a mine, False if not
+        """
         return self.__contains_mine
 
-    '''
-    Alter state of GameTile to revealed, check losing condition
-    
-    :return True if this tile held a mine
-    '''
     def reveal(self) -> bool:
+        """
+            Alter state of GameTile to revealed, check losing condition
+
+            :return True if this tile held a mine
+        """
         self.__state = self.REVEALED
         return True if self.__contains_mine else False
 
-    '''
-    Alter state of GameTile to flagged
-    '''
     def flag(self):
+        """
+            Alter state of GameTile to flagged
+        """
         self.__state = self.FLAGGED
 
-    '''
-    Alter state of GameTile to Hidden (unflagged) if it is flagged
-    '''
     def unflag(self):
+        """
+           Alter state of GameTile to Hidden (unflagged) if it is flagged
+        """
         if self.__state is self.FLAGGED:
             self.__state = self.HIDDEN
 
-    '''
-    Get point value for this GameTile
-    
-    :return points The number of points the tile is worth
-    '''
     def get_points(self):
+        """
+            Get point value for this GameTile
+
+            :return points The number of points the tile is worth
+        """
         if self.__state is not self.REVEALED:
             return 0
         elif self.__contains_mine:
@@ -104,10 +102,10 @@ class GameTile:
         else:
             return self.__danger_level
 
-    '''
-    Print the state of the tile or the threat level
-    '''
     def print_tile(self):
+        """
+            Print the state of the tile or the threat level
+        """
         if self.__state is self.HIDDEN:
             print("*", end="  ")
         elif self.__state is self.REVEALED:

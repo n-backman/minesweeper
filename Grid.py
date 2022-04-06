@@ -1,16 +1,15 @@
 from GameTile import GameTile
 import random
 
-"""
-Game board to play minesweeper on comprised of NxN GameTiles
-
-:param size         Dimensions of game board size^2
-:param mine_count   Number of mines on game board
-:param seed         Seed for RNG
-"""
-
 
 class Grid:
+    """
+        Game board to play minesweeper on comprised of NxN GameTiles
+
+        :param size         Dimensions of game board size^2
+        :param mine_count   Number of mines on game board
+        :param seed         Seed for RNG
+    """
     INACTIVE = 0
     ACTIVE = 1
 
@@ -28,21 +27,19 @@ class Grid:
         self.__init_danger()
         self.print_board()
 
-    '''
-    Populate the game board with GameTiles
-    '''
-
     def __init_grid(self):
+        """
+            Populate the game board with GameTiles
+        """
         # populate board with tiles
         for i in range(self.size):
             for j in range(self.size):
                 self.grid[i].append(GameTile(i, j))
 
-    '''
-    Populate Gametile board with n mines
-    '''
-
     def __init_mines(self):
+        """
+            Populate Gametile board with n mines
+        """
         # place mines
         random.seed(self.seed)
         mines_placed = 0
@@ -51,11 +48,10 @@ class Grid:
             if self.grid[x][y].set_mine():
                 mines_placed += 1
 
-    '''
-    Calculate and set neighbor bomb count and set danger level
-    '''
-
     def __init_danger(self):
+        """
+            Calculate and set neighbor bomb count and set danger level
+        """
         for i in range(self.size):
             for j in range(self.size):
                 danger_level = 0
@@ -77,41 +73,37 @@ class Grid:
                 if not self.grid[i][j].set_danger(danger_level):
                     self.reveal_total += 1
 
-    '''
-    Grab specified GameTile object from board
-    
-    :return GameTile object
-    '''
-
     def get_tile(self, i: int, j: int) -> GameTile:
+        """
+            Grab specified GameTile object from board
+
+            :return GameTile object
+        """
         return self.grid[i][j]
 
-    '''
-    Grab state of board
-    '''
-
     def get_state(self):
+        """
+            Grab state of board
+        """
         return self.__state
 
-    '''
-    Take action on board by revealing a tile **checks lose condition**
-    '''
-
     def reveal(self, i: int, j: int):
+        """
+           Take action on board by revealing a tile **checks lose condition**
+        """
         # returns true if the tile had a Mine
         if not self.grid[i][j].reveal():
             self.reveal_total += 1
             self.print_board()
-            if self.size**2 - (self.mine_count + self.reveal_total) == 0:
+            if self.size ** 2 - (self.mine_count + self.reveal_total) == 0:
                 self.__game_over(won=True)
         else:
             self.__game_over(won=False)
 
-    '''
-    Take action on board by marking a tile with a bomb stake
-    '''
-
     def toggle_flag(self, i: int, j: int):
+        """
+            Take action on board by marking a tile with a bomb stake
+        """
         state = self.get_tile(i, j).get_state()
         if state is GameTile.HIDDEN:
             self.grid[i][j].flag()
@@ -119,22 +111,20 @@ class Grid:
             self.grid[i][j].unflag()
         self.print_board()
 
-    '''
-    Neatly print the current state of the board to console
-    '''
-
     def print_board(self):
+        """
+            Neatly print the current state of the board to console
+        """
         print()
         for i in range(self.size):
             for j in range(self.size):
                 self.grid[i][j].print_tile()
             print()
 
-    '''
-    Neatly print the fully revealed board to console
-    '''
-
     def print_full_board(self):
+        """
+            Neatly print the fully revealed board to console
+        """
         print()
         for i in range(self.size):
             for j in range(self.size):
@@ -142,11 +132,10 @@ class Grid:
                 self.grid[i][j].print_tile()
             print()
 
-    '''
-    Handles the end of the game conditionally 
-    '''
-
     def __game_over(self, won: bool):
+        """
+           Handles the end of the game conditionally
+        """
         # turn off the game and get the player's score
         self.__state = self.INACTIVE
         score = self.get_score()
@@ -157,11 +146,10 @@ class Grid:
             print("You win!")
         print(f'Your score is: {score} points!')
 
-    '''
-    Calculate end of game score
-    '''
-
     def get_score(self) -> int:
+        """
+           Calculate end of game score
+        """
         total_score = 0
         for i in range(self.size):
             for j in range(self.size):
