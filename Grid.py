@@ -38,7 +38,7 @@ class Grid:
 
     def __init_mines(self):
         """
-            Populate Gametile board with n mines
+            Populate GameTile board with n mines
         """
         # place mines
         random.seed(self.seed)
@@ -77,7 +77,7 @@ class Grid:
         """
             Grab specified GameTile object from board
 
-            :return GameTile object
+            :return: GameTile object
         """
         return self.grid[i][j]
 
@@ -116,8 +116,8 @@ class Grid:
             Neatly print the current state of the board to console
         """
         print()
-        for i in range(self.size):
-            for j in range(self.size):
+        for j in range(self.size):
+            for i in range(self.size):
                 self.grid[i][j].print_tile()
             print()
 
@@ -126,8 +126,8 @@ class Grid:
             Neatly print the fully revealed board to console
         """
         print()
-        for i in range(self.size):
-            for j in range(self.size):
+        for j in range(self.size):
+            for i in range(self.size):
                 self.grid[i][j].reveal()
                 self.grid[i][j].print_tile()
             print()

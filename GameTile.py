@@ -24,7 +24,7 @@ class GameTile:
         """
            Set a mine on this GameTile
 
-           :return True on success
+           :return: True on success
         """
         if not self.__contains_mine:
             self.__contains_mine = True
@@ -35,7 +35,7 @@ class GameTile:
     def set_danger(self, danger: int):
         """
             Set threat level of surrounding Tiles
-            :returns False if the tile is not dangerous
+            :return: False if the tile is not dangerous
         """
         if not self.__contains_mine:
             self.__danger_level = danger
@@ -59,11 +59,21 @@ class GameTile:
         """
         return self.__state
 
+    def get_danger(self) -> (bool, int):
+        """
+            Get the danger value of a REVEALED tile
+
+            :return: result_tuple (success, value)
+        """
+        if self.__state is self.REVEALED:
+            return True, int(self.__danger_level)
+        return False, None
+
     def has_mine(self):
         """
            Check for presence of a mine on this tile
 
-           :return True if this GameTile has a mine, False if not
+           :return: True if this GameTile has a mine, False if not
         """
         return self.__contains_mine
 
@@ -71,7 +81,7 @@ class GameTile:
         """
             Alter state of GameTile to revealed, check losing condition
 
-            :return True if this tile held a mine
+            :return: True if this tile held a mine
         """
         self.__state = self.REVEALED
         return True if self.__contains_mine else False
@@ -93,7 +103,7 @@ class GameTile:
         """
             Get point value for this GameTile
 
-            :return points The number of points the tile is worth
+            :return: points The number of points the tile is worth
         """
         if self.__state is not self.REVEALED:
             return 0
