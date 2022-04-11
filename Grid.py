@@ -12,6 +12,7 @@ class Grid:
     """
     INACTIVE = 0
     ACTIVE = 1
+    actions = ['?', '!']
 
     def __init__(self, size: int, mine_count: int, seed: int = None):
         self.size = size
@@ -155,6 +156,12 @@ class Grid:
             for j in range(self.size):
                 total_score += self.get_tile(i, j).get_points()
         return total_score
+
+    def take_action(self, x_pos: int, y_pos: int, action: str):
+        if action == '?':
+            self.reveal(x_pos, y_pos)
+        elif action == '!':
+            self.toggle_flag(x_pos, y_pos)
 
 
 if __name__ == "__main__":
