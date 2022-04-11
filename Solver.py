@@ -14,36 +14,38 @@ class Solver:
     def __init__(self, game_board: Grid):
         self.Board = game_board
         self.n = game_board.size  # dimension of board (nxn)
-        self.Beliefs = [[] for _ in range(self.n)]
+        self.Beliefs = {}
         self.__init_beliefs()
 
     def __init_beliefs(self):
+        # TODO: create new data structure to merge coords and belief values. dont need 2 lists
         """
         Initialize belief space for predictions
         :return: None
         """
         for i in range(self.n):
             for j in range(self.n):
-                self.Beliefs[i].append(.0)
+                self.Beliefs[(i, j)] = -1.0
 
     # TODO: Read GridSpace
     def read_grid(self):
         pass
 
-    def find_candidates(self, candidates=None) -> [GameTile]:
+    def find_candidates(self, candidates: list = None) -> [GameTile]:
         """
-        Scower the board for potential spaces to reveal, and add them to a list
+        Scower the board for potential spaces to reveal on the frontier, and add them to a list
 
         :return: candidates List[GameTile] containing all potential tiles to play
         """
         if candidates is None:
             candidates = []
-
         # need to scan board for all revealed tiles with a hidden neighbor
         for i in range(self.n):
             for j in range(self.n):
                 tile = self.Board.get_tile(i, j)
                 if tile.get_state() is GameTile.REVEALED:
+                    neighbors = []
+                    zero_count = 0
                     # add neighbors on to the list performing safecheck
                     for x_offset in [-1, 0, 1]:
                         # prevent negative indexing
@@ -57,19 +59,64 @@ class Solver:
                                 try:
                                     neighbor = self.Board.get_tile(i + x_offset, j + y_offset)
                                     if neighbor.get_state() is GameTile.HIDDEN:
-                                        candidates.append(neighbor.get_coords())
+                                        neighbors.append(neighbor.get_coords())
+                                        # if the neighbor has a zero belief, track it for updating phase
+                                        if self.Beliefs[neighbor.get_coords()] == 0.0:
+                                            zero_count += 1
                                 except IndexError:
                                     pass
+                    self.update_beliefs(tile.get_danger()[1], neighbors, zero_count)
+                    [candidates.append(x) for x in neighbors if x not in candidates]
         return candidates
 
     # TODO: Assess Candidate Tiles and Update Beliefs
+    def update_beliefs(self, threat: int, neighbors: list, null_neighbors: int):
+        # TODO: solve double counting belief values .5 on round 1 updates with .5 on round 2 to be 1, should be .5 total
+        for n in neighbors:
+            # evaluate the current belief value
+            prior_belief = self.Beliefs[n]
+            # if it was zero or will be zero, leave it zero
+            if not prior_belief or not threat:
+                self.Beliefs[n] = 0.0
+            else:
+                # set prior to zero if we've never been there, then sum
+                prior_belief = 0 if prior_belief <= 0 else prior_belief
+                self.Beliefs[n] = prior_belief + (threat / (len(neighbors) - null_neighbors))
 
     # TODO: Reveal least-likely (most safe) Candidate
+    def select_candidate(self, candidates: list) -> (int, int):
+        min_belief = 100
+        min_candidate = None
+        for c in candidates:
+            x, y, = c[0], c[1]
+            belief = self.Beliefs[c]
+            # flag definite bombs
+            if belief >= 1.0:
+                self.Board.toggle_flag(x, y)
+                candidates.remove(c)
+                return c
+            # reveal min probability greater than zero
+            elif belief < min_belief:
+                min_belief = belief
+                min_candidate = c
+        self.Board.reveal(min_candidate[0], min_candidate[1])
+        candidates.remove(min_candidate)
+        return min_candidate
+
+    def soften_beliefs(self, candidates: list):
+        for c in candidates:
+            self.Beliefs[c] = -1
 
     def play(self):
+        candidates = []
         while self.Board.get_state():
-            x, y = random.randint(0, self.n - 1), random.randint(0, self.n - 1)
-            self.Board.reveal(x, y)
-            candidates = self.find_candidates()
-            for item in candidates:
-                print(f'{item[1]+1}, {item[0]+1}\t', end='')
+            candidates = self.find_candidates(candidates)
+            print([(c, self.Beliefs[c]) for c in candidates])
+            selection = self.select_candidate(candidates)
+            self.soften_beliefs(candidates)
+            print(f'{selection[0]+1}, {selection[1]+1}')
+
+
+if __name__ == "__main__":
+    sv = Solver(Grid(5, 10, 2))
+    sv.play()
