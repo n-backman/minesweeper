@@ -45,7 +45,7 @@ class Solver:
                 tile = self.Board.get_tile(i, j)
                 if tile.get_state() is GameTile.REVEALED:
                     neighbors = []
-                    zero_count = 0
+                    zero_count, flag_count = 0, 0
                     # add neighbors on to the list performing safecheck
                     for x_offset in [-1, 0, 1]:
                         # prevent negative indexing
@@ -63,14 +63,16 @@ class Solver:
                                         # if the neighbor has a zero belief, track it for updating phase
                                         if self.Beliefs[neighbor.get_coords()] == 0.0:
                                             zero_count += 1
+                                    elif neighbor.get_state() is GameTile.FLAGGED:
+                                        flag_count += 1
                                 except IndexError:
                                     pass
-                    self.update_beliefs(tile.get_danger()[1], neighbors, zero_count)
+                    self.update_beliefs(tile.get_danger()[1], neighbors, zero_count, flag_count)
                     [candidates.append(x) for x in neighbors if x not in candidates]
         return candidates
 
     # TODO: Assess Candidate Tiles and Update Beliefs
-    def update_beliefs(self, threat: int, neighbors: list, null_neighbors: int):
+    def update_beliefs(self, threat: int, neighbors: list, null_neighbors: int, flag_neighbors: int):
         # TODO: solve double counting belief values .5 on round 1 updates with .5 on round 2 to be 1, should be .5 total
         for n in neighbors:
             # evaluate the current belief value
@@ -81,7 +83,7 @@ class Solver:
             else:
                 # set prior to zero if we've never been there, then sum
                 prior_belief = 0 if prior_belief <= 0 else prior_belief
-                self.Beliefs[n] = prior_belief + (threat / (len(neighbors) - null_neighbors))
+                self.Beliefs[n] = prior_belief + ((threat-flag_neighbors) / (len(neighbors)-null_neighbors))
 
     # TODO: Reveal least-likely (most safe) Candidate
     def select_candidate(self, candidates: list) -> (int, int):
@@ -90,15 +92,18 @@ class Solver:
         for c in candidates:
             x, y, = c[0], c[1]
             belief = self.Beliefs[c]
+            if not belief:
+                self.Board.reveal(x, y)
+                candidates.remove(c)
+                return c
             # flag definite bombs
-            if belief >= 1.0:
+            elif belief >= 2.0:
                 self.Board.toggle_flag(x, y)
                 candidates.remove(c)
                 return c
             # reveal min probability greater than zero
             elif belief < min_belief:
-                min_belief = belief
-                min_candidate = c
+                min_belief, min_candidate = belief, c
         self.Board.reveal(min_candidate[0], min_candidate[1])
         candidates.remove(min_candidate)
         return min_candidate
@@ -118,5 +123,5 @@ class Solver:
 
 
 if __name__ == "__main__":
-    sv = Solver(Grid(5, 10, 2))
+    sv = Solver(Grid(5, 6, None))
     sv.play()
