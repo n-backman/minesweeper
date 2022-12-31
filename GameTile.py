@@ -1,3 +1,6 @@
+from typing import Tuple
+
+
 class GameTile:
     """
         Granular unit to maintain state of the game board.
@@ -59,7 +62,7 @@ class GameTile:
         """
         return self.__state
 
-    def get_danger(self) -> (bool, int):
+    def get_danger(self) -> Tuple[bool, int]:
         """
             Get the danger value of a REVEALED tile
 

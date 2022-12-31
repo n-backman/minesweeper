@@ -1,5 +1,6 @@
 from GameTile import GameTile
 import random
+from typing import Tuple
 
 
 class Grid:
@@ -16,6 +17,7 @@ class Grid:
 
     def __init__(self, size: int, mine_count: int, seed: int = None):
         self.size = size
+        self.corners = [(0,0),(size-1,size-1),(0,size-1),(size-1,0)]
         self.mine_count = mine_count
         self.seed = seed
         self.reveal_total = 0
@@ -46,6 +48,8 @@ class Grid:
         mines_placed = 0
         while mines_placed < self.mine_count:
             x, y = random.randint(0, self.size - 1), random.randint(0, self.size - 1)
+            if((x,y) in self.corners):
+                continue # don't allow mines in the corner.
             if self.grid[x][y].set_mine():
                 mines_placed += 1
 

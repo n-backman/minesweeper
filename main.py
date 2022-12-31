@@ -1,12 +1,13 @@
+from typing import Tuple
 import Grid
 import Solver
 
-size = 6
-n_mines = 10
+size = 5
+n_mines = 6
 seed = None
 
 
-def get_input(actions: list, board_size: int) -> (int, int, str):
+def get_input(actions: list, board_size: int) ->Tuple[int, int, str]:
     while True:
         instr = input(f"Next Move [X][Y][{'/'.join(actions)}]: ")
         try:
